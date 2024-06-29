@@ -106,7 +106,7 @@ void loop() {
     }
   }
 
-  for (unsigned int i = 1; i < sizeof(digitalOutputPins); ++i) {
+  for (unsigned int i = 1; i < sizeof(digitalOutputPins)/sizeof(digitalOutputPins[0]); ++i) {
       digitalWrite(digitalOutputPins[i], ledStates[i-1]);
   }
 

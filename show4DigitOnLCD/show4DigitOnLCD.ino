@@ -55,7 +55,7 @@ int digitPins[] = {
   digit4, digit3, digit2, digit1
 };
 
-void intToLCD(const unsigned int& fourDigitInt, unsigned int digitArray[]) {
+void intToLCD(const unsigned int &fourDigitInt, unsigned int *digitArray, const size_t &sizeOfDigitArray) {
   if (fourDigitInt >= 10000) {
     Serial.println("Number must be 4 digits only!");
   
@@ -95,7 +95,7 @@ void intToLCD(const unsigned int& fourDigitInt, unsigned int digitArray[]) {
     Serial.println(digitArray[i]);
   }
 
-  writeInt(digitArray);
+  writeInt(digitArray, sizeOfDigitArray);
 }
 
 byte byteIntArray[] = { // ABCDEFG_ (7 digit LCD)
@@ -111,16 +111,16 @@ byte byteIntArray[] = { // ABCDEFG_ (7 digit LCD)
   B11110110// nine
 };
 
-void writeInt(unsigned int digits[]) {
+void writeInt(unsigned int *digitArray, const size_t &sizeOfDigitArray) {
   unsigned int currentDigit = 0;
   byte currentByte = B00000000;
-  unsigned int start = sizeof(digits) - 4; // when there are only 3 digits, only 3 last digits will be activated on LCD, etc
+  unsigned int start = sizeOfDigitArray - 4; // when there are only 3 digits, only 3 last digits will be activated on LCD, etc
 
-  for (unsigned int i = start; i < sizeof(digits)/sizeof(digits[0]); ++i) {
-    currentDigit = digits[i];
+  for (unsigned int i = start; i < sizeOfDigitArray; ++i) { // choose which byte to send into register
+    currentDigit = digitArray[i];
     currentByte = byteIntArray[currentDigit]; // able to do this because my byteIntArray is exactly from 0 to 9, so I can access it with index being my digit to print
     
-    for (unsigned int j = 0; j < sizeof(digitPins); ++j)  digitalWrite(digitPins[j], i==j); // choose digit
+    for (unsigned int j = 0; j < sizeof(digitPins)/sizeof(digitPins[0]); ++j) digitalWrite(digitPins[j], i==j); // choose digit
 
     PORTD = currentByte; // print number
 
@@ -146,23 +146,21 @@ char signArray[] = {
   // etc
 };
 
-void writeChar(const char signs[]) {
+void writeChar(const char *charArray, const size_t &sizeOfCharArray) {
   byte currentByte = B00000000;
   char currentSign = ' ';
 
-  for (unsigned int i = 0; i < sizeof(signs)/sizeof(signs[0]); ++i) {
-    digitalWrite(digitPins[i], true);
-
-    currentSign = signs[i];
+  for (unsigned int i = 0; i < sizeOfCharArray; ++i) { // choose which byte to send into register
+    currentSign = charArray[i];
 
     for (unsigned int k = 0; k < sizeof(signArray)/sizeof(signArray[0]); ++k) {
-      if (currentSign == signArray[k]) {
+      if (currentSign == charArray[k]) {
         currentByte = byteCharArray[k];
         break;
       }
     }
 
-    for (unsigned int j = 0; j < sizeof(digitPins); ++j)  digitalWrite(digitPins[j], i==j); // choose digit
+    for (unsigned int j = 0; j < sizeof(digitPins)/sizeof(digitPins[0]); ++j)  digitalWrite(digitPins[j], i==j); // choose digit
   
     PORTD = currentByte; // print char
 
@@ -174,7 +172,7 @@ void writeChar(const char signs[]) {
     // etc
   };
 
-  if (signs[i] == pairArray[i].first) {
+  if (charArray[i] == pairArray[i].first) {
     PORTD = pairArray[i].second;
   }
   */
@@ -208,7 +206,8 @@ void loop() {
     //} catch (const char& e) {
       //Serial.println(e);
     //}
-    intToLCD(randomInt, digitArray);
+
+    intToLCD(randomInt, digitArray, sizeof(digitArray)/sizeof(digitArray[0]));
   } 
   
 }

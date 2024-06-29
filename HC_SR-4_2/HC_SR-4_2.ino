@@ -57,14 +57,13 @@ const unsigned int distanceArray[] = {
 
 // OR
 
-void setLeds(bool ledArray[], const unsigned int& distance, const unsigned int distArray[]) {
-  for (size_t i = 0; i < sizeof(ledArray) / sizeof(ledArray[0]); ++i) { // sizeof returns multiplication of sizef of all dimensions, meaning for 2D rows*columns, so when trying to get size of first dimension you should use
+void setLeds(bool (*ledArray)[], const unsigned int& distance, const unsigned int *distArray) {
+  for (size_t i = 0; i < sizeof(*ledArray) / sizeof((*ledArray)[0]); ++i) { // sizeof returns multiplication of sizef of all dimensions, meaning for 2D rows*columns, so when trying to get size of first dimension you should use
   // sizeof(array) / sizeof(array[0]), when trying to get size of second dimension you should use sizeof(array[0])!!!
   
     ledArray[i] = distance >= distArray[i]; // if distance is higher than i distance Interval set it to true, else set it to false
   }
 }
-
 
 unsigned long measureStateTime(const unsigned int& pin, const bool& state) {
   unsigned long ctime = 0;
@@ -137,14 +136,14 @@ void loop() {
     }
     }
     
-    setLeds(ledStates, distance, distanceArray);
+    setLeds(&ledStates, distance, distanceArray);
 
   } else {
-    memset(ledStates, 0, sizeof(ledStates));
+    memset(ledStates, 0, sizeof(ledStates)/sizeof(ledStates[0]));
     ledState_SR = false;
   }
 
-  for (unsigned int i = 1; i < sizeof(digitalOutputPins); ++i) {
+  for (unsigned int i = 1; i < sizeof(digitalOutputPins)/sizeof(digitalOutputPins[0]); ++i) {
       digitalWrite(digitalOutputPins[i], ledStates[i-1]);
   }
 

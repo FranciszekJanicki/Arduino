@@ -1,12 +1,11 @@
 #define A5 19
 
-int size = 0, sizeAdder = 10;
+size_t size = 0;
 int i = 0;
-float* values = new float[size];
+float *values = new float[size];
 float value = 0;
-bool currentSet = false, previousSet = false, output = false;
-bool alarm = false;
-
+bool currentSet = false, alarm = false, output = false;
+static bool previousSet = false;
 void setup() {
   pinMode(13, INPUT_PULLUP);
   pinMode(A5, INPUT);
@@ -16,18 +15,23 @@ void setup() {
   digitalWrite(12, false);
 }
 
-float* copyAndResize(float array[], const int& sizeAdder) {
-  int size = sizeof(array);
-  float* copy = array;
+void copyAndResize(float *array, size_t &size) {
 
-  array = new float[size + sizeAdder]; // pointing to other variable
-  // you can't define variables with name of existing variable
-  for (unsigned int i = 0; i < size; ++i) {
-    array[i] = copy[i]; 
+  float *newArray = new float[size * 2]; // can't return pointers to variables existing only in scope (function). The solution is to create either static variable 
+  // and return pointer to it (or first element of array) or dynamically allocate memory and return pointer to it!
+  size *= 2;
+
+  // copy memory from old to new (reallocate)
+  for (size_t i = 0; i < size; ++i) {
+    newArray[i] = array[i]; 
   }
-  delete[] copy;
+  // OR
+  //memcpy(array, copy, size * sizeof(float));
 
-  return array; // return array that contains old array but with 10 new indexes
+  array = newArray;
+  delete[] newArray;
+
+  return array; // return array that contains old array but with 2*indexes
 }
 
 void loop() {
@@ -41,8 +45,7 @@ void loop() {
     value = analogRead(A5) * (5.0/1024.0); // .0 is information for compilator to treat it as float, if it were (5/1024) it would be rounded to int
 
     if (i >= size) {
-      values = copyAndResize(values, sizeAdder);
-      size += sizeAdder;
+      copyAndResize(values, size);
     } // only allocate new memory when it's needed
 
     values[i] = value; // save new value, it will execute 9 times and only 10th the previous if statement will be excetuted 

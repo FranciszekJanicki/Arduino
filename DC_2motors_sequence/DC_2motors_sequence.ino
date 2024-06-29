@@ -83,11 +83,11 @@ void setup() {
   pinMode(skipButton, INPUT_PULLUP);
 }
 
-void assignMotorInputs(bool forward[], const bool forwardVals[]) {
+void assignMotorInputs(bool *forwardArr, const bool (*ptrToForwardValsArray)[]) {
   for (unsigned int i = 0; i < amountOfMotors; ++i) {
-    forward[i] = forwardVals[i];
+    forwardArr[i] = (*ptrToForwardValsArray)[i];
 
-    if (forward[i]) {
+    if (forwardArr[i]) {
       left[i] = false;
       right[i] = true;
     } else {
@@ -137,7 +137,7 @@ void loop() {
       if (!changedDirection[i]) {
         accArray[i] = false;
       } else {
-        assignMotorInputs(forward, forwardArray[iteration]);
+        assignMotorInputs(forward, &(forwardArray[iteration]));
         accArray[i] = true;
       }
 
@@ -175,7 +175,7 @@ void loop() {
   }
 
 
-  for (unsigned int i = 6; i < sizeof(outPinArray); ++i) {
+  for (unsigned int i = 6; i < sizeof(outPinArray)/sizeof(outPinArray[0]); ++i) {
     digitalWrite(outPinArray[i], ledStates[i]);
   }
 
@@ -189,7 +189,7 @@ void loop() {
   }
 
   if (finishedIteration) {
-    if (iteration >= sizeof(forwardArray)) {
+    if (iteration >= sizeof(forwardArray)/sizeof(forwardArray[0])) {
         iteration = 0;
     } else {
       iteration++; 

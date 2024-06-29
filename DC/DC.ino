@@ -125,7 +125,7 @@ void loop() {
     right = false;
   }
 
-  for (unsigned int i = 3; i < sizeof(outputPins); ++i) {
+  for (unsigned int i = 3; i < sizeof(outputPins)/sizeof(outputPins[0]); ++i) {
     digitalWrite(outputPins[i], ledArray[i]); 
   }
 
@@ -138,7 +138,7 @@ void loop() {
   prevForward = forward;
 
   if (iterationEnd) {  // if end of previous iteration then increment
-    if (iteration < sizeof(forwardArray)) {
+    if (iteration < sizeof(forwardArray)/sizeof(forwardArray[0])) {
       iteration++;
     } else {
       iteration = 0;
